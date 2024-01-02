@@ -16,6 +16,7 @@ from: markdown+emoji
 ---
 
 ```{r Loading Packages}
+#test
 library(stm)
 library(tm)
 library(dplyr)
@@ -133,13 +134,16 @@ Time Descriptives:
   mutate(video_published_at = as.POSIXct(video_published_at, format = "%Y-%m-%d %H:%M:%S")) %>%
   arrange(video_published_at, video_title)
 ```
+
 ```{r}
 set.seed(1234)
 sampled_yt_dt <- yt_dt %>% 
   ungroup() %>%  # Remove grouping
   sample_n(10000, replace = FALSE)  
 ```
+
 The data set is so big that these parts of the code move slow, so for the purposes of memo 2 I am going to take a smaller sub sample from this data set and preprocess this.
+
 ```{r using lubridate to see when the comments were published}
 library(lubridate)
 sampled_yt_dt <- sampled_yt_dt %>%
@@ -169,12 +173,14 @@ sampled_yt_dt <- sampled_yt_dt %>%
          video_day_of_week = weekdays(video_published_at),
          video_hour_of_day = hour(video_published_at))
 ```
+
 ```{r visualizing the day of the week that each video was published on}
 sampled_yt_dt %>%
   group_by(video_title, video_day_of_week) %>%
   count() %>%
   arrange(video_title, desc(n))
 ```
+
 ```{r visualizing the hour that each video was published on}
 sampled_yt_dt %>%
   group_by(video_title, video_hour_of_day) %>%
@@ -197,6 +203,7 @@ sampled_yt_dt %>%
 yt_dt %>%
   with(wordcloud(comment, max.words = 100, scale = c(3, 0.5))) # within scale the first value pertains to the font size for the most frequent word while the second is the font size for the least frequent word
 ```
+
 ```{r visualizing the most frequent words in the video titles}
 
 yt_dt %>%
@@ -207,7 +214,6 @@ These word clouds are graphics that allow us to see which words are the most pop
 
 # Cleaning/Pre-processing ---
 
-
 ```{r cleaning the comments for modeling later and for interpretation}
 # Preprocess the comment column in yt_dt
 sampled_yt_dt$comment_clean <- tolower(sampled_yt_dt$comment)  # Convert to lowercase
@@ -216,6 +222,7 @@ sampled_yt_dt$comment_clean <- gsub("[[:punct:]]", "", sampled_yt_dt$comment_cle
 sampled_yt_dt$comment_clean <- removeWords(sampled_yt_dt$comment_clean, stopwords("english"))  # Remove stopwords
 sampled_yt_dt$comment_clean <- stripWhitespace(sampled_yt_dt$comment_clean)  # Remove extra whitespaces
 ```
+
 ```{r Stemming words}
 # Stemming the words in comments
 for (i in 1:nrow(sampled_yt_dt)) {
@@ -224,6 +231,7 @@ for (i in 1:nrow(sampled_yt_dt)) {
   sampled_yt_dt$comment_clean[i] <- paste(stemmed_words, collapse = " ")  # Replace the comment with the stemmed words
 }
 ```
+
 ```{r}
 # Preprocess the comment column in yt_dt
 yt_proc <- textProcessor(
@@ -231,6 +239,7 @@ yt_proc <- textProcessor(
   metadata = sampled_yt_dt              # Include metadata if available (optional)
 )
 ```
+
 ```{r Preparing the data for modeling}
 # Extract the components from yt_proc object
 meta <- yt_proc$meta      # Extract the metadata from yt_proc
@@ -246,7 +255,7 @@ vocab <- yt_out$vocab     # Update the vocabulary with the modified values from 
 meta <- yt_out$meta       # Update the metadata with the modified values from prepDocuments
 ```
 
-All of this code is part of the data cleaning and pre-processing process. This process is pivotal for later analyses such as calculating sentiment across the comments or employing more advanced methods of statistical analysis such as structural topical modeling. For the purposes of this project memo, I will focus on cleaning and pre-processing the data for the purposes of exploratory data analysis (e.g., identifying frequent words within the comments). During the final project, I will be employing the more advanced methods of analyses. \# 
+All of this code is part of the data cleaning and pre-processing process. This process is pivotal for later analyses such as calculating sentiment across the comments or employing more advanced methods of statistical analysis such as structural topical modeling. For the purposes of this project memo, I will focus on cleaning and pre-processing the data for the purposes of exploratory data analysis (e.g., identifying frequent words within the comments). During the final project, I will be employing the more advanced methods of analyses. \#
 
 Descriptive stuff ---
 
@@ -267,6 +276,7 @@ sampled_yt_dt %>%
   group_by(video_title)
   # filter(n > 1000) %>%
 ```
+
 ```{r pre-processing data to see top words in each comments for each video title}
 # Create a tidy text corpus
 corpus <- sampled_yt_dt %>%
